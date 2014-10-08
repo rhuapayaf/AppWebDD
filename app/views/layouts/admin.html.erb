@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en-us">
+	<head>
+		<meta charset="utf-8">
+	
+		<title> Panel </title>
+		<meta name="description" content="">
+		<meta name="author" content="">
+		
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		
+		
+		<%= stylesheet_link_tag 'admin/bootstrap.min','admin/font-awesome.min','admin/smartadmin-production', 'admin/smartadmin-skins'  %>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700">
+	<%= javascript_include_tag "assets/application", "data-turbolinks-track" => true %>
+	</head>
+	<body class="">
+		<header id="header">
+			<div id="logo-group">
+
+				<span id="logo"> LOGO </span>
+
+				<span id="activity" class="activity-dropdown"> <i class="fa fa-user"></i> </span>
+
+				<!-- END AJAX-DROPDOWN -->
+			</div>
+
+			<!-- projects dropdown -->
+			<div id="project-context">
+
+				<span class="label">Usuario:</span>
+				<span id="project-selector" class="popover-trigger-element dropdown-toggle" data-toggle="dropdown"><%=session[:userlogin]%><i class="fa fa-angle-down"></i></span>
+
+				<ul class="dropdown-menu">
+					
+					<li>
+						<a href="javascript:void(0);"><i class="fa fa-male"></i> Modificar informacion Personal</a>
+					</li>
+
+					<li>
+						<a href="javascript:void(0);"><i class="fa fa-key"></i> Cambiar Contraseña</a>
+					</li>
+
+				</ul>
+				
+			</div>
+			
+			<div class="pull-right">
+
+				<div id="hide-menu" class="btn-header pull-right">
+					<span> <a href="javascript:void(0);" title="Collapse Menu"><i class="fa fa-reorder"></i></a> </span>
+				</div>
+				
+				<div id="logout" class="btn-header transparent pull-right">
+					<span> <a href="{{URL::action('AccesoController@getSalir')}}" title="Sign Out"><i class="fa fa-sign-out"></i></a> </span>
+				</div>
+				
+			</div>
+		
+		</header>
+		
+		<aside id="left-panel">
+
+			
+			<div class="login-info">
+				
+			</div>
+			
+
+			
+			<nav>
+				<ul>
+					<!--<li>
+						<a href="{{URL::route('categorias.index')}}"><i class="fa fa-lg fa-fw fa-user"></i>
+						<span class="menu-item-parent">Usuarios</span></a>
+					</li>-->
+					<li><%= link_to 'Usuarios', admin_users_path %></li>
+					<li><%= link_to 'Categorías', admin_categories_path %></li>
+					<li><%= link_to 'Productos', admin_products_path %></li>
+					
+				</ul>
+			</nav>
+			<span class="minifyme"> <i class="fa fa-arrow-circle-left hit"></i> </span>
+
+		</aside>
+		<!-- END NAVIGATION -->
+
+		<!-- MAIN PANEL -->
+		<div id="main" role="main">
+
+			<!-- RIBBON -->
+			<div id="ribbon">
+
+				<!-- breadcrumb -->
+				<ol class="breadcrumb">
+					<li>
+						<%= @breadcrumb || 'Principal'%>
+					</li>
+				</ol>
+
+			</div>
+		
+			<div id="content">
+				<%= yield  %>
+			</div>
+		</div>
+
+		<script data-pace-options='{ "restartOnRequestAfter": true }' src="{{asset('panel/js/plugin/pace/pace.min.js')}}"></script>
+    
+    <%= javascript_include_tag "admin/libs/jquery-2.0.2.min", "admin/libs/jquery-ui-1.10.3.min" %>
+    <%= javascript_include_tag "admin/bootstrap/bootstrap.min", "admin/notification/SmartNotification.min", "admin/smartwidgets/jarvis.widget.min" , "admin/plugin/sparkline/jquery.sparkline.min" %>
+		<%= javascript_include_tag "admin/plugin/jquery-validate/jquery.validate.min", "admin/plugin/masked-input/jquery.maskedinput.min.js" , "admin/plugin/select2/select2.min" %>
+    <%= javascript_include_tag "admin/plugin/bootstrap-slider/bootstrap-slider.min", "admin/plugin/msie-fix/jquery.mb.browser.min" , "admin/plugin/fastclick/fastclick" %>
+    <%= javascript_include_tag "admin/app", "admin/plugin/datatables/jquery.dataTables-cust", "admin/plugin/datatables/DT_bootstrap", "admin/plugin/jquery-validate/jquery.validate.min", "admin/plugin/jquery-validate/mensajes" %>
+	
+		<script type="text/javascript">
+	
+		$(document).ready(function() {
+			pageSetUp();
+
+			$('[data-submit]').click(function(){
+				$( "form:first" ).submit();
+			});
+
+			$('body').on('click','a[data-eliminar]',function(e){
+				var $this = $(this);
+
+				$.SmartMessageBox({
+					title : "<i class='fa fa-question-circle' style='color:red'></i> Eliminar registro",
+					content : "Esta es una confirmacion de seguridad antes de eliminar, desea continuar?",
+					buttons : '[No][Si]'
+				}, function(ButtonPressed) {
+					if (ButtonPressed === "Si") {
+						
+						$.ajax({
+						  type: "DELETE",
+						  url: $this.prop('href'),
+						  dataType : 'json',
+						  data: { authenticity_token : '<%=form_authenticity_token%>'},
+						  success: function(mdata){
+						  		delId = mdata.id;
+						  		$("#grilla_basica tbody tr[data-mid='"+ delId +"']").hide(1000);
+
+						  		if($('#grilla_ajax')){
+						  			$('#grilla_ajax').DataTable()._fnAjaxUpdate();	
+						  		}
+
+						  		$.smallBox({
+										title : "Proceso exitoso",
+										content : "<i class='fa  fa-thumbs-o-up'></i> <i> La operacion ha sido concretada</i>",
+										color : "#356e35",
+										iconSmall : "fa   fa-thumbs-o-up  fa-2x fadeInRight animated",
+										timeout : 5000
+								});
+
+						  		
+						  },
+						  error : function(mdata){
+						  		jsonResult = JSON.parse(mdata.responseText);
+						  		
+						  		$.smallBox({
+										title : "Error Interno",
+										content : "<i class='fa fa-warning-o'></i> <i>"+jsonResult.error.message+"</i>",
+										color : "#c26565",
+										iconSmall : "fa  fa-warning  fa-2x fadeInRight animated",
+										timeout : 5000
+								});
+						  		
+						  }
+						});
+					}
+					if (ButtonPressed === "No") {
+						
+					}
+
+				});
+				e.preventDefault();
+			});	
+
+			$('#grilla_basica').dataTable({
+				"sPaginationType" : "bootstrap_full",
+				"iDisplayLength": 25,
+				"oLanguage": {
+				 "oPaginate": {
+				        "sFirst":    "Primero",
+				        "sPrevious": "Anterior",
+				        "sNext":     "Siguiente",
+				        "sLast":     "Último"
+				  },
+				  "sProcessing":     "Procesando...",
+				    "sZeroRecords":    "No se encontraron resultados",
+				    "sEmptyTable":     "Ningún dato disponible en esta tabla",
+				    "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+				    "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+				    "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+
+				}
+			});
+
+		})
+
+		</script>
+
+	</body>
+
+</html>

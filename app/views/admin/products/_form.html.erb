@@ -1,0 +1,64 @@
+<%= form_for([:admin,@product], html: {multipart: true}) do |f| %>
+  <% if @product.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@product.errors.count, "error") %> prohibited this product from being saved:</h2>
+
+      <ul>
+      <% @product.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label "Nombre" %><br>
+    <%= f.text_field :name %>
+  </div>
+  <div class="field">
+    <%= f.label "Descripción" %><br>
+    <%= f.text_field :description %>
+  </div>
+  
+    <div class="field">
+    <%= f.label "Color" %><br>
+    <%= f.collection_select :color_id, Color.all, :id, :description, :prompt => true %>
+  </div>
+  
+  <div class="field">
+    <%= f.label "Tipo de cuello" %><br>
+    <%= f.collection_select :neck_id, Neck.all, :id, :description, :prompt => true %>
+  </div>
+  
+  <div class="field">
+    <%= f.label "Tipo de manga" %><br>
+    <%= f.collection_select :sleeve_id, Sleeve.all, :id, :description, :prompt => true %>
+  </div>
+  
+  <div class="field">
+    <%= f.label "Tamaño" %><br>
+    <%= f.collection_select :size_id, Size.all, :id, :description, :prompt => true %>
+  </div>
+  
+  <div class="field">
+    <%= f.label "Material" %><br>
+    <%= f.collection_select :material_id, Material.all, :id, :description, :prompt => true %>
+  </div>
+  
+  <div class="field">
+    <%= f.label "Foto" %><br>
+    <%= f.file_field :photo %>
+  </div>
+  <div class="field">
+    <%= f.label "Stock" %><br>
+    <%= f.number_field :stock %>
+  </div>
+  <div class="field">
+    <%= f.label "Precio" %><br>
+    <%= f.text_field :price %>
+  </div>
+  
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

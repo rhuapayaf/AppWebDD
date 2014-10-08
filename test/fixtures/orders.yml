@@ -1,0 +1,17 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  shipping_address: MyText
+  date_order: 2014-10-04 18:48:23
+  delivery_date: 2014-10-04 18:48:23
+  total_price: 1.5
+  comment: MyText
+  order_state: MyString
+
+two:
+  shipping_address: MyText
+  date_order: 2014-10-04 18:48:23
+  delivery_date: 2014-10-04 18:48:23
+  total_price: 1.5
+  comment: MyText
+  order_state: MyString
